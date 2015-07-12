@@ -46,7 +46,7 @@
             else { entry.push({ time: this.timestamp, y: yright });}
            
         }
-        xtimestamp++;
+        this.timestamp++;
         return entry;
     }
 
