@@ -1,0 +1,207 @@
+<script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+<script type="text/javascript" src="d3.min.js"></script>  
+<script type="text/javascript" src="data.js"></script>  
+ <script type="text/javascript" src="epoch.js"></script>
+  
+   <link href="epoch.css" rel="stylesheet" />
+  
+  <style type="text/css">
+  .timeline {
+  list-style: none;
+  padding: 20px 0 20px;
+  position: relative;
+}
+.timeline:before {
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  content: " ";
+  width: 3px;
+  background-color: #eeeeee;
+  left: 50%;
+  margin-left: -1.5px;
+}
+.timeline > li {
+  margin-bottom: 20px;
+  position: relative;
+}
+.timeline > li:before,
+.timeline > li:after {
+  content: " ";
+  display: table;
+}
+.timeline > li:after {
+  clear: both;
+}
+.timeline > li:before,
+.timeline > li:after {
+  content: " ";
+  display: table;
+}
+.timeline > li:after {
+  clear: both;
+}
+.timeline > li > .timeline-panel {
+  width: 46%;
+  float: left;
+  border: 1px solid #d4d4d4;
+  border-radius: 2px;
+  padding: 20px;
+  position: relative;
+  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+}
+.timeline > li > .timeline-panel:before {
+  position: absolute;
+  top: 26px;
+  right: -15px;
+  display: inline-block;
+  border-top: 15px solid transparent;
+  border-left: 15px solid #ccc;
+  border-right: 0 solid #ccc;
+  border-bottom: 15px solid transparent;
+  content: " ";
+}
+.timeline > li > .timeline-panel:after {
+  position: absolute;
+  top: 27px;
+  right: -14px;
+  display: inline-block;
+  border-top: 14px solid transparent;
+  border-left: 14px solid #fff;
+  border-right: 0 solid #fff;
+  border-bottom: 14px solid transparent;
+  content: " ";
+}
+.timeline > li > .timeline-badge {
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  font-size: 1.4em;
+  text-align: center;
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  margin-left: -25px;
+  background-color: #999999;
+  z-index: 100;
+  border-top-right-radius: 50%;
+  border-top-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+  border-bottom-left-radius: 50%;
+}
+.timeline > li.timeline-inverted > .timeline-panel {
+  float: right;
+}
+.timeline > li.timeline-inverted > .timeline-panel:before {
+  border-left-width: 0;
+  border-right-width: 15px;
+  left: -15px;
+  right: auto;
+}
+.timeline > li.timeline-inverted > .timeline-panel:after {
+  border-left-width: 0;
+  border-right-width: 14px;
+  left: -14px;
+  right: auto;
+}
+.timeline-badge.primary {
+  background-color: #2e6da4 !important;
+}
+.timeline-badge
+{
+	padding: 15px;
+}
+.timeline-badge.success {
+  background-color: #3f903f !important;
+}
+.timeline-badge.warning {
+  background-color: #f0ad4e !important;
+}
+.timeline-badge.danger {
+  background-color: #d9534f !important;
+}
+.timeline-badge.info {
+  background-color: #5bc0de !important;
+}
+.timeline-title {
+  margin-top: 0;
+  color: inherit;
+}
+.timeline-body > p,
+.timeline-body > ul {
+  margin-bottom: 0;
+}
+.timeline-body > p + p {
+  margin-top: 5px;
+}
+  </style>
+  <body >
+
+      <div id="real-time-line" class="epoch category20" style="height: 200px"></div>
+
+      <script>
+          $(function () {
+              var data = new RealTimeData(2);
+
+              var chart = $('#real-time-line').epoch({
+                  type: 'time.line',
+                  data: data.history(),
+                  axes: ['left', 'bottom', 'right']
+              });
+
+              setInterval(function () { chart.push(data.next()); }, 500);
+              chart.push(data.next());
+          });
+      </script>
+    
+<div class="container" >
+    <div class="page-header">
+        <h2 id="timeline">tweet words count from left and right display, for academic purposes using epoch library and twitter streamig api.(Amaya-Barretto-Orlowski). Based on i-visionblog - Tech Blog by s.shivasurya </h2>
+        
+    </div>
+    <ul class="timeline">
+       
+    </ul>
+</div> 
+ <div id="tweetd"></div>
+</div>
+
+      <script>
+
+    var socket = io.connect();
+    var i = 0;
+    var words;
+    var xtimestamp;
+    var yleft, yright;
+
+    socket.on('stream', function (tweet) {
+
+        words = tweet.text.split(' ');
+     
+        xtimestamp = (tweet.timestamp_ms / 100) | 0;
+        // alert( tweet.timestamp_ms/100);
+        if (i % 2 == 0) {
+            $('.timeline').prepend("<li  class=\"timeline-inverted\" ><div class=\"timeline-badge success\"><i class=\"glyphicon glyphicon-credit-card\"></i></div><div class=\"timeline-panel\" style=\"background-color:white;color:black\"><div class=\"timeline-heading\"><h4 class=\"timeline-title\">" + tweet.user.name + "</h4><p><small class=\"text-muted\"><i class=\"glyphicon glyphicon-time\"></i> Just Now via Twitter</small></p></div><div class=\"timeline-body\"> " + tweet.text + "</div></div></li>").slideDown();
+           
+                   
+            yleft = words.length;
+            i = i + 1;
+        }
+        else {
+            $('.timeline').prepend("<li><div class=\"timeline-badge danger\"><i class=\"glyphicon glyphicon-thumbs-up\"></i></div><div class=\"timeline-panel\" style=\"background-color:white;color:black\"><div class=\"timeline-heading\"><h4 class=\"timeline-title\">" + tweet.user.name + "</h4><p><small class=\"text-muted\"><i class=\"glyphicon glyphicon-time\"></i> Just Now via Twitter</small></p></div><div class=\"timeline-body\"> " + tweet.text + "</div></div></li>").slideDown();
+            
+            
+            yright = words.length;
+            i = i + 1;
+
+        }
+    });
+
+
+
+      </script>
+</body>
